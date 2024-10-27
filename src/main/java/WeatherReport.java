@@ -21,10 +21,9 @@ public class WeatherReport {
         final String HEADER = "X-Yandex-Weather-Key";
         final String HEADER_VALUE = "b1888297-4513-4390-8eb5-09286bf69278";
 
-
         System.out.println("Choose your option:");
         System.out.println("1. Weather forecast by lon & lat");
-        System.out.println("2. Average weather temperature by date");
+        System.out.println("2. Average weather temperature by date limit");
 
         Scanner scanner = new Scanner(System.in);
         System.out.print("Enter you option: ");
@@ -33,10 +32,10 @@ public class WeatherReport {
         switch (optionChoice) {
             case 1:
                 Scanner scanner1 = new Scanner(System.in);
-                System.out.println("Insert longitude as hh.ss: ");
-                lon = scanner1.nextLine();
                 System.out.println("Insert latitude as hh.ss: ");
                 lat = scanner1.nextLine();
+                System.out.println("Insert longitude as hh.ss: ");
+                lon = scanner1.nextLine();
 
                 HttpClient clientFullReport = HttpClient.newHttpClient();
                 URI uriFullReport = URI.create(URL + "?" + "lat=" + lat + "&" + "lon=" + lon);
@@ -61,10 +60,10 @@ public class WeatherReport {
                 break;
             case 2:
                 Scanner scanner2 = new Scanner(System.in);
-                System.out.println("Insert longitude as hh.ss: ");
-                lon = scanner2.nextLine();
                 System.out.println("Insert latitude as hh.ss: ");
                 lat = scanner2.nextLine();
+                System.out.println("Insert longitude as hh.ss: ");
+                lon = scanner2.nextLine();
                 System.out.println("Insert date limit: ");
                 limit = scanner2.nextInt();
 
@@ -80,12 +79,17 @@ public class WeatherReport {
 
                 ObjectMapper mapperLimitReport = new ObjectMapper();
                 JsonNode jsonLimitResponse = mapperLimitReport.readTree(WeatherLimitResponse);
-                JsonNode forecast = jsonLimitResponse.get("forecast");
-                JsonNode parts = forecast.get("parts");
-                JsonNode dayTemp = parts.get("day");
-                int avgTemp = dayTemp.get("temp_avg").asInt();
-
-                System.out.println("Average temperature by limit equals to: " + parts);
+                int finalTemp = 0;
+                for (int i=0; i < limit; i++) {
+                    JsonNode forecasts = jsonLimitResponse.get("forecasts");
+                    JsonNode firstObj = forecasts.get(i);
+                    JsonNode parts = firstObj.get("parts");
+                    JsonNode dayTemp = parts.get("day");
+                    int avgTemp = dayTemp.get("temp_avg").asInt();
+                    finalTemp += avgTemp;
+                }
+                System.out.println("Average temeperature counted by limit number of " + limit + " equals to: " + finalTemp/limit);
+                break;
         }
     }
 }
